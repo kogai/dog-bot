@@ -17,7 +17,7 @@ fn index_post(req: &mut Request) -> IronResult<Response> {
     let mut buf = String::new();
     req.body.read_to_string(&mut buf).unwrap();
     println!("request body: {}", buf);
-    
+
     Ok(Response::with((status::Ok, "{}")))
 }
 
@@ -33,7 +33,7 @@ fn main() {
     router.get("/", handler, "index");
     router.post("/", index_post, "index_post");
     
-    match Iron::new(router).http(format!("localhost:{}", port)) {
+    match Iron::new(router).http(format!("0.0.0.0:{}", port)) {
         Ok(success) => println!("{:?}", success),
         Err(error) => println!("{}", error) 
     };
