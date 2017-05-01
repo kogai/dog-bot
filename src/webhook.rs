@@ -17,7 +17,7 @@ pub struct Event {
   #[serde(rename = "type")]
   event_type: String,
   reply_token: String,
-  timestamp: i32,
+  timestamp: isize,
   source: SourceGroup,
 }
 
