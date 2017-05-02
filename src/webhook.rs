@@ -50,14 +50,21 @@ pub fn index_post(req: &mut Request) -> IronResult<Response> {
     let mut buf = String::new();
     req.body.read_to_string(&mut buf).unwrap();
     
-    let request_body = serde_json::from_str::<WebHook>(&buf);
-    println!("request body: {:?}", request_body);
-
-    Ok(Response::with((status::Ok, "{}")))
+    match parse_request_body(&buf) {
+        Ok(request_body) => {
+          println!("{:?}", request_body);
+          Ok(Response::with((status::Ok, "{}")))
+        },
+        Err(err) => {
+          println!("{:?}", err);
+          Ok(Response::with((status::Ok, "{}")))
+        },
+    }
+    
 }
 
-fn parse_request_body(s: &String) -> WebHook {
-  serde_json::from_str::<WebHook>(s).unwrap()
+fn parse_request_body(s: &String) -> serde_json::Result<WebHook> {
+  serde_json::from_str::<WebHook>(s)
 }
 
 mod tests {
@@ -83,7 +90,7 @@ mod tests {
         }]   
       } 
       "#.to_owned());
-      assert_eq!(result, WebHook {
+      assert_eq!(result.unwrap(), WebHook {
         events: vec![Event {
           event_type: "message".to_owned(),
           reply_token: "reply-token".to_owned(),
@@ -120,7 +127,7 @@ mod tests {
         }]   
       } 
       "#.to_owned());
-      assert_eq!(result, WebHook {
+      assert_eq!(result.unwrap(), WebHook {
         events: vec![Event {
           event_type: "message".to_owned(),
           reply_token: "reply-token".to_owned(),
