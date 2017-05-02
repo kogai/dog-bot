@@ -22,6 +22,16 @@ fn handler(req: &mut Request) -> IronResult<Response> {
     Ok(Response::with((status::Ok, *query)))
 }
 
+fn greeting(server: &hyper::server::Listening) {
+    let room_id = env::var("GROUP_ID").expect("GROUP_ID is missing");
+    request::push(request::Push {
+        to: room_id,
+        messages: vec![
+            request::Message::Text { text: format!("犬botが{:?}で起動します...", server.socket) }
+        ],
+    });
+}
+
 fn main() {
     dotenv::dotenv().ok();
 
@@ -35,7 +45,7 @@ fn main() {
     router.post("/", webhook::index_post, "index_post");
     
     match Iron::new(router).http(format!("0.0.0.0:{}", port)) {
-        Ok(success) => println!("{:?}", success),
+        Ok(success) => greeting(&success),
         Err(error) => println!("{}", error) 
     };
 }

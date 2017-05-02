@@ -1,8 +1,6 @@
 use std::env;
-use std::io::Read;
 
-use hyper::{Client, Result};
-use hyper::client::Response;
+use hyper::{Client};
 use hyper::header::{ Authorization, Headers, ContentType};
 use hyper::net::HttpsConnector;
 use hyper_native_tls::NativeTlsClient;
@@ -10,7 +8,7 @@ use serde_json;
 
 const LINE_API: &'static str = "https://api.line.me/v2/bot/message";
 const PUSH: &'static str = "/push";
-const REPLY: &'static str = "/reply";
+// const REPLY: &'static str = "/reply";
 
 fn header() -> Headers {
     let mut headers = Headers::new();
