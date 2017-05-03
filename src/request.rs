@@ -47,7 +47,7 @@ pub fn push(payload: Push) /*-> Result<Response>*/ {
       .send();
     
     match response {
-        Ok(success) => println!("{:?}", success),
+        Ok(success) => println!("Status: {:?}", success.status),
         Err(error) => println!("{:?}", error),
     };
 }
