@@ -9,6 +9,7 @@ extern crate serde_json;
 extern crate hyper;
 extern crate hyper_native_tls;
 extern crate job_scheduler;
+extern crate regex;
 
 use std::env;
 use std::fmt::Display;
@@ -31,9 +32,7 @@ fn greeting<T: Display>(message: T) {
     let room_id = env::var("GROUP_ID").expect("GROUP_ID is missing");
     request::push(request::Push {
         to: room_id,
-        messages: vec![
-            request::Message::Text { text: format!("{}", message) }
-        ],
+        messages: vec![request::Message::Text { text: format!("{}", message) }],
     });
 }
 
@@ -65,13 +64,13 @@ fn main() {
     let mut router = Router::new();
     router.get("/", handler, "index");
     router.post("/", webhook::index_post, "index_post");
-    
+
     register_cron_job(JOB_EXPRESSION);
 
     match Iron::new(router).http(format!("0.0.0.0:{}", port)) {
         Ok(success) => {
             println!("{:?}", success);
-        },
-        Err(error) => println!("{}", error) 
+        }
+        Err(error) => println!("{}", error), 
     };
 }
