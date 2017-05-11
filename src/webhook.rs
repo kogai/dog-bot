@@ -55,17 +55,24 @@ pub struct WebHook {
 }
 
 fn handle_web_hook(webhook: &WebHook) {
+    let conversations = vec![
+        (".*ちゅうてか".to_owned(), "ちゅうてよ".to_owned()),
+        ("^いぬ$".to_owned(), "いぬやで".to_owned()),
+    ];
+    
     for event in &webhook.events {
         match &event.message {
             &Message::Text { ref text, ref id } => {
-                let reg = regex::Regex::new(".*ちゅうてか$").unwrap();
-                if reg.is_match(text) {
-                    reply(Reply {
-                        reply_token: event.reply_token.clone(),
-                        messages: vec![request::Message::Text {
-                                           text: "ちゅうてよ".to_owned(),
-                                       }],
-                    });
+                for &(ref regex_str, ref response) in &conversations {
+                    let reg = regex::Regex::new(regex_str).unwrap();
+                    if reg.is_match(text) {
+                        reply(Reply {
+                            reply_token: event.reply_token.clone(),
+                            messages: vec![request::Message::Text {
+                                            text: response.to_owned(),
+                                        }],
+                        });
+                    }
                 }
             }
             _ => {}
