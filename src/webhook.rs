@@ -58,6 +58,7 @@ fn handle_web_hook(webhook: &WebHook) {
     let conversations = vec![
         (".*ちゅうてか".to_owned(), "ちゅうてよ".to_owned()),
         ("^いぬ$".to_owned(), "いぬやで".to_owned()),
+        ("\u{1f438}".to_owned(), "おっ".to_owned())
     ];
     
     for event in &webhook.events {

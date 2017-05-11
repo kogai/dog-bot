@@ -55,7 +55,6 @@ fn register_cron_job(exp: &'static str) {
 
 fn main() {
     dotenv::dotenv().ok();
-
     let port = match env::var("PORT") {
         Ok(p) => p,
         Err(_) => "3000".to_string(),
