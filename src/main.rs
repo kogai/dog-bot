@@ -69,6 +69,7 @@ fn main() {
     match Iron::new(router).http(format!("0.0.0.0:{}", port)) {
         Ok(success) => {
             println!("{:?}", success);
+            greeting("いぬ起きた");
         }
         Err(error) => println!("{}", error), 
     };

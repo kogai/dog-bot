@@ -56,9 +56,11 @@ pub struct WebHook {
 
 fn handle_web_hook(webhook: &WebHook) {
     let conversations = vec![
-        (".*ちゅうてか".to_owned(), "ちゅうてよ".to_owned()),
-        ("^いぬ$".to_owned(), "いぬやで".to_owned()),
-        ("\u{1f438}".to_owned(), "おっ".to_owned())
+        (".*ちゅうてか", "ちゅうてよ"),
+        (".*ちゅうてや", "ちゅうてやな"),
+        ("^いぬ$", "いぬやで"),
+        ("あかつか$|赤塚$|なります$|成増$", "\u{2757}"), // !
+        ("\u{1f438}", "おっ") // frog
     ];
     
     for event in &webhook.events {
@@ -70,7 +72,7 @@ fn handle_web_hook(webhook: &WebHook) {
                         reply(Reply {
                             reply_token: event.reply_token.clone(),
                             messages: vec![request::Message::Text {
-                                            text: response.to_owned(),
+                                            text: response.to_string(),
                                         }],
                         });
                     }
