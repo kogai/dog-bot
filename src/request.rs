@@ -50,7 +50,8 @@ fn post<T: serde::Serialize>(path: &str, payload: &T) -> Result<Response> {
     let header = header();
     let url = format!("{}{}", LINE_API, path);
 
-    client.post(url.as_str())
+    client
+        .post(url.as_str())
         .headers(header)
         .body(&serde_json::to_string(payload).unwrap())
         .send()
@@ -69,3 +70,4 @@ pub fn reply(payload: Reply) {
         Err(error) => println!("{:?}", error),
     };
 }
+
