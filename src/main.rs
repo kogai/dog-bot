@@ -14,6 +14,8 @@ extern crate serde;
 extern crate serde_json;
 
 use futures::future::Future;
+use rocket::config::{Config, Environment};
+use rocket::custom;
 use std::env;
 use std::fmt::Display;
 use std::thread;
@@ -46,7 +48,7 @@ mod conversation;
 // }
 // struct HelloWorld;
 
-#[get("/")]
+#[get("/hello")]
 fn hello() -> &'static str {
     "Hello, world!"
 }
@@ -75,9 +77,18 @@ fn hello() -> &'static str {
 // }
 
 fn main() {
-    // let port = env::var("PORT").unwrap_or("3000".to_owned());
-    // let host = format!("0.0.0.0:{}", port);
-    rocket::ignite().mount("/", routes![hello]).launch();
+    let port = env::var("PORT").unwrap_or("3000".to_owned());
+    let port = u16::from_str_radix(&port, 10).unwrap();
+
+    let config = Config::build(Environment::Staging)
+        .address("0.0.0.0")
+        .port(port)
+        .finalize()
+        .unwrap();
+
+    let server = custom(config, false);
+    server.mount("/", routes![hello]).launch();
+
     // let addr = "127.0.0.1:3000".parse().unwrap();
     // let server = Http::new().bind(&addr, || Ok(HelloWorld)).unwrap();
     // server.run().unwrap();
