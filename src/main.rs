@@ -1,76 +1,95 @@
+#![feature(plugin, decl_macro)]
+#![plugin(rocket_codegen)]
+
+#[macro_use]
+extern crate rocket;
 #[macro_use]
 extern crate serde_derive;
 
-extern crate dotenv;
-extern crate iron;
-extern crate router;
+extern crate futures;
+extern crate hyper;
+extern crate hyper_tls;
+extern crate regex;
 extern crate serde;
 extern crate serde_json;
-extern crate hyper;
-extern crate hyper_native_tls;
-extern crate job_scheduler;
-extern crate regex;
 
+use futures::future::Future;
 use std::env;
 use std::fmt::Display;
 use std::thread;
 use std::time::Duration;
-use iron::prelude::{Iron, IronResult, Request, Response};
-use iron::status;
-use router::Router;
-use job_scheduler::{Job, JobScheduler};
 
-mod webhook;
-mod request;
+use hyper::header::ContentLength;
+use hyper::server::{Http, Request, Response, Service};
 
-fn handler(req: &mut Request) -> IronResult<Response> {
-    let ref query = req.extensions.get::<Router>().unwrap().find("query").unwrap_or("/");
-    Ok(Response::with((status::Ok, *query)))
+mod conversation;
+// mod request;
+// mod webhook;
+
+// fn handler(req: &mut Request) -> IronResult<Response> {
+//     let ref query = req.extensions
+//         .get::<Router>()
+//         .unwrap()
+//         .find("query")
+//         .unwrap_or("/");
+//     Ok(Response::with((status::Ok, *query)))
+// }
+
+// fn greeting<T: Display>(message: T) {
+//     let room_id = env::var("GROUP_ID").expect("GROUP_ID is missing");
+//     request::push(request::Push {
+//         to: room_id,
+//         messages: vec![request::Message::Text {
+//             text: format!("{}", message),
+//         }],
+//     });
+// }
+// struct HelloWorld;
+
+#[get("/")]
+fn hello() -> &'static str {
+    "Hello, world!"
 }
 
-fn greeting<T: Display>(message: T) {
-    let room_id = env::var("GROUP_ID").expect("GROUP_ID is missing");
-    request::push(request::Push {
-        to: room_id,
-        messages: vec![request::Message::Text { text: format!("{}", message) }],
-    });
-}
+// const PHRASE: &'static str = "Hello, World!";
 
-static JOB_EXPRESSION: &'static str = "0 0 8 * * Mon-Fri *";
+// impl Service for HelloWorld {
+//     // boilerplate hooking up hyper's server types
+//     type Request = Request;
+//     type Response = Response;
+//     type Error = hyper::Error;
+//     // The future representing the eventual Response your call will
+//     // resolve to. This can change to whatever Future you need.
+//     type Future = Box<Self::Future<Item = Self::Response, Error = Self::Error>>;
 
-fn register_cron_job(exp: &'static str) {
-    thread::spawn(move || {
-        let mut schedule = JobScheduler::new();
-        schedule.add(Job::new(exp.parse().unwrap(), || {
-            let greeting_message = env::var("GREETING_MESSAGE").unwrap_or("".to_owned());
-            greeting(greeting_message);
-        }));
-
-        loop {
-            schedule.tick();
-            thread::sleep(Duration::from_secs(30));
-        }
-    });
-}
+//     fn call(&self, _req: Request) -> Self::Future {
+//         // We're currently ignoring the Request
+//         // And returning an 'ok' Future, which means it's ready
+//         // immediately, and build a Response with the 'PHRASE' body.
+//         Box::new(futures::future::ok(
+//             Response::new()
+//                 .with_header(ContentLength(PHRASE.len() as u64))
+//                 .with_body(PHRASE),
+//         ))
+//     }
+// }
 
 fn main() {
-    dotenv::dotenv().ok();
-    let port = match env::var("PORT") {
-        Ok(p) => p,
-        Err(_) => "3000".to_string(),
-    };
+    // let port = env::var("PORT").unwrap_or("3000".to_owned());
+    // let host = format!("0.0.0.0:{}", port);
+    rocket::ignite().mount("/", routes![hello]).launch();
+    // let addr = "127.0.0.1:3000".parse().unwrap();
+    // let server = Http::new().bind(&addr, || Ok(HelloWorld)).unwrap();
+    // server.run().unwrap();
+    // let mut router = Router::new();
+    // router.get("/", handler, "index");
+    // router.post("/", webhook::index_post, "index_post");
 
-    let mut router = Router::new();
-    router.get("/", handler, "index");
-    router.post("/", webhook::index_post, "index_post");
-
-    register_cron_job(JOB_EXPRESSION);
-
-    match Iron::new(router).http(format!("0.0.0.0:{}", port)) {
-        Ok(success) => {
-            println!("{:?}", success);
-            greeting("いぬ起きた");
-        }
-        Err(error) => println!("{}", error), 
-    };
+    // match Iron::new(router).http(host) {
+    //     Ok(success) => {
+    //         println!("{:?}", success);
+    //         greeting("いぬ起きた");
+    //     }
+    //     Err(error) => println!("{}", error),
+    // };
 }
