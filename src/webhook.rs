@@ -52,7 +52,7 @@ pub struct WebHook {
     events: Vec<Event>,
 }
 
-#[post("/user", format = "application/json", data = "<payload>")]
+#[post("/", format = "application/json", data = "<payload>")]
 pub fn index_post(payload: Json<WebHook>) {
     let conversations = &conversation::CONVERSATION.initial_conversations;
 

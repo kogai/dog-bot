@@ -16,7 +16,7 @@ pub enum Error {
 
 impl Conversation {
   pub fn new() -> Result<Self, Error> {
-    fs::read(".conversation.json")
+    fs::read("./conversation.json")
       .map_err(|err| Error::FileNotfound(err))
       .and_then(|byte| {
         serde_json::from_slice::<Conversation>(&byte).map_err(|err| Error::ParseFailed(err))
