@@ -66,12 +66,4 @@ fn main() {
 
     // let mut router = Router::new();
     // router.post("/", webhook::index_post, "index_post");
-
-    // match Iron::new(router).http(host) {
-    //     Ok(success) => {
-    // println!("{:?}", success);
-    //         greeting("Good morning, sir.");
-    //     }
-    //     Err(error) => println!("{}", error),
-    // };
 }

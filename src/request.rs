@@ -1,6 +1,5 @@
 use std::env;
 
-use hyper::client::Response;
 use hyper::header::{Authorization, ContentType, Headers};
 use reqwest::{self, Client};
 use serde;
@@ -40,28 +39,23 @@ pub struct Reply {
     pub messages: Vec<Message>,
 }
 
-fn post<T: serde::Serialize>(path: &str, payload: &T) -> reqwest::Result<Response> {
-    let client = Client::new();
-    let header = header();
-    let url = format!("{}{}", LINE_API, path);
-    let res = client
-        .post(url.as_str())
-        .headers(header)
-        .body("the exact body that is sent")
-        .send()?;
-
-    unimplemented!();
+fn post<T: serde::Serialize>(path: &str, payload: T) -> reqwest::Result<reqwest::Response> {
+    Client::new()
+        .post(format!("{}{}", LINE_API, path).as_str())
+        .headers(header())
+        .body(serde_json::to_vec(&payload).unwrap())
+        .send()
 }
 
 pub fn push(payload: Push) {
-    match post(PUSH, &payload) {
+    match post(PUSH, payload) {
         Ok(success) => println!("Status: {:?}", success.status()),
         Err(error) => println!("{:?}", error),
     };
 }
 
 pub fn reply(payload: Reply) {
-    match post(REPLY, &payload) {
+    match post(REPLY, payload) {
         Ok(success) => println!("Status: {:?}", success.status()),
         Err(error) => println!("{:?}", error),
     };

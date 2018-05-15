@@ -8,7 +8,7 @@ pub struct Conversation {
 
 impl Conversation {
   pub fn new() -> Self {
-    match fs::read("./config.json") {
+    match fs::read("./conversation.json") {
       Ok(file) => {
         unimplemented!();
       }
