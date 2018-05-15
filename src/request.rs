@@ -1,12 +1,10 @@
 use std::env;
 
-use hyper::{Client, Result};
 use hyper::client::Response;
-use hyper::header::{Authorization, Headers, ContentType};
-use hyper::net::HttpsConnector;
-use hyper_native_tls::NativeTlsClient;
-use serde_json;
+use hyper::header::{Authorization, ContentType, Headers};
+use reqwest::{self, Client};
 use serde;
+use serde_json;
 
 const LINE_API: &'static str = "https://api.line.me/v2/bot/message";
 const PUSH: &'static str = "/push";
@@ -42,32 +40,29 @@ pub struct Reply {
     pub messages: Vec<Message>,
 }
 
-fn post<T: serde::Serialize>(path: &str, payload: &T) -> Result<Response> {
-    let ssl = NativeTlsClient::new().expect("TLS client build failed");
-    let connector = HttpsConnector::new(ssl);
-    let client = Client::with_connector(connector);
-
+fn post<T: serde::Serialize>(path: &str, payload: &T) -> reqwest::Result<Response> {
+    let client = Client::new();
     let header = header();
     let url = format!("{}{}", LINE_API, path);
-
-    client
+    let res = client
         .post(url.as_str())
         .headers(header)
-        .body(&serde_json::to_string(payload).unwrap())
-        .send()
+        .body("the exact body that is sent")
+        .send()?;
+
+    unimplemented!();
 }
 
 pub fn push(payload: Push) {
     match post(PUSH, &payload) {
-        Ok(success) => println!("Status: {:?}", success.status),
+        Ok(success) => println!("Status: {:?}", success.status()),
         Err(error) => println!("{:?}", error),
     };
 }
 
 pub fn reply(payload: Reply) {
     match post(REPLY, &payload) {
-        Ok(success) => println!("Status: {:?}", success.status),
+        Ok(success) => println!("Status: {:?}", success.status()),
         Err(error) => println!("{:?}", error),
     };
 }
-
