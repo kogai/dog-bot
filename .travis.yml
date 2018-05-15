@@ -1,14 +1,11 @@
 language: rust
 matrix:
-    fast_finish: true
     include:
-        - rust: nightly
+        - os: linux
+        - os: osx
 
-cache:
-    apt: true
-    directories:
-        - target/debug/deps
-        - target/debug/build
+cache: cargo
 
-script:
-  - cargo test --verbose
+notifications:
+    email:
+        on_success: never
