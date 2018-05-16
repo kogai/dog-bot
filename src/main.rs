@@ -36,6 +36,11 @@ fn greeting<T: Display>(message: T) {
     });
 }
 
+#[get("/<ping>")]
+fn echo(ping: String) -> String {
+    ping
+}
+
 fn main() {
     let port = env::var("PORT").unwrap_or("3000".to_owned());
     let port = u16::from_str_radix(&port, 10).unwrap();
@@ -47,10 +52,10 @@ fn main() {
         .unwrap();
     let server = custom(config, true);
     server
-        .mount("/", routes![webhook::index_post])
+        .mount("/", routes![echo, webhook::index_post])
         .attach(rocket::fairing::AdHoc::on_launch(move |rocket| {
             println!("Rocket launch config: {:?}", rocket.config());
-            greeting((&conversation::CONVERSATION).greeting.clone());
+            // greeting((&conversation::CONVERSATION).greeting.clone());
         }))
         .launch();
 }
