@@ -7,5 +7,6 @@ RUN apt-get update && \
 WORKDIR /app
 
 ADD . /app
+RUN cargo build --release
 
-CMD [ "cargo", "build", "--release" ]
+CMD [ "./target/release/dog-bot" ]
